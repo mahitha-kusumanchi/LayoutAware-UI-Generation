@@ -28,18 +28,29 @@ layoutgen/
 
 ## 🚀 Getting Started
 
-### Local Setup (CPU/Local GPU)
+### Lightweight API Mode (No Heavy Install)
 
-1. **Install Dependencies**:
+This project now supports **Hugging Face Inference API**, which avoids downloading massive AI models (GBs) to your computer.
+1. **Get a Token**: Create a free account at [huggingface.co](https://huggingface.co) and get a token from [Settings > Tokens](https://huggingface.co/settings/tokens).
+2. **Install Minimal Dependencies**:
    ```bash
-   pip install -r requirements.txt
+   pip install streamlit requests pillow
    ```
+3. **Run the App**:
+   ```bash
+   streamlit run frontend/app.py
+   ```
+4. **Choose API Mode**: Select "Hugging Face API" in the sidebar and enter your token.
+
+### Local Setup (CPU/Local GPU/Colab)
+
+If you prefer to run everything locally (requires GBs of downloads):
+1. **Install Full Dependencies**:
+   (Standard installation including `torch`, `diffusers`).
 2. **Run the Streamlit App**:
    ```bash
    streamlit run frontend/app.py
    ```
-
-### Google Colab (GPU Acceleration)
 
 If you don't have a local GPU, follow these steps:
 1. Upload `notebooks/layoutgen_colab.ipynb` to [Google Colab](https://colab.research.google.com/).

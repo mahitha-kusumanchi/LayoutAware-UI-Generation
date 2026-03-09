@@ -7,7 +7,7 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'backend')))
 
 from prompt_generator import generate_prompt
-from layout_to_image import generate_image, visualize_layout
+from layout_to_image import generate_image, generate_image_api, visualize_layout
 from PIL import Image
 import io
 
@@ -15,13 +15,20 @@ st.set_page_config(page_title="LayoutGen - AI Image Generator", layout="wide")
 
 st.title("🎨 LayoutGen: From Layout to Image")
 st.markdown("""
-Transform your JSON layouts into beautiful images using Stable Diffusion. Now with layout visualization!
+Transform your JSON layouts into beautiful images using Stable Diffusion. 
+**Pro Tip:** Use the "Inference API" mode for a lightweight, fast setup!
 """)
 
 # Sidebar for configuration
 st.sidebar.header("Configuration")
-model_id = st.sidebar.text_input("Model ID", "runwayml/stable-diffusion-v1-5")
-device = st.sidebar.selectbox("Device", ["cpu", "cuda"] if "cuda" in st.sidebar.text_input("Raw Device (hidden)", "") else ["cpu"])
+mode = st.sidebar.radio("Execution Mode", ["Hugging Face API", "Local (Requires GPU/Colab)"])
+
+if mode == "Hugging Face API":
+    api_key = st.sidebar.text_input("Hugging Face API Token", type="password", help="Get your token at huggingface.co/settings/tokens")
+    model_id = st.sidebar.selectbox("Model", ["runwayml/stable-diffusion-v1-5", "stabilityai/stable-diffusion-2-1"])
+else:
+    model_id = st.sidebar.text_input("Model ID", "runwayml/stable-diffusion-v1-5")
+    device = st.sidebar.selectbox("Device", ["cpu", "cuda"])
 
 # Main interface
 col1, col2 = st.columns([1, 1])
@@ -46,14 +53,20 @@ with col1:
             st.info(f"**Generated Prompt:**\n{prompt}")
             
             if st.button("🚀 Generate Image"):
-                with st.spinner("Generating image... This may take a moment."):
-                    try:
-                        # Call image generator
-                        img = generate_image(prompt, model_id=model_id, device=device)
-                        st.session_state['generated_image'] = img
-                        st.success("Image generated successfully!")
-                    except Exception as e:
-                        st.error(f"Error generating image: {e}")
+                if mode == "Hugging Face API" and not api_key:
+                    st.warning("Please enter your Hugging Face API Token in the sidebar.")
+                else:
+                    with st.spinner("Generating image..."):
+                        try:
+                            if mode == "Hugging Face API":
+                                img = generate_image_api(prompt, api_key, model_id=model_id)
+                            else:
+                                img = generate_image(prompt, model_id=model_id, device=device)
+                            
+                            st.session_state['generated_image'] = img
+                            st.success("Image generated successfully!")
+                        except Exception as e:
+                            st.error(f"Error generating image: {e}")
                         
         except Exception as e:
             st.error(f"Error parsing JSON: {e}")
