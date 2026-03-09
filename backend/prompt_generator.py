@@ -28,11 +28,3 @@ def generate_prompt(layout_json):
         prompt_parts.append(f"a {label} located at the {v_pos} {h_pos}")
         
     return ", ".join(prompt_parts) + "."
-
-if __name__ == "__main__":
-    # Test logic
-    sample_data = {
-        "title": "Forest",
-        "objects": [{"label": "tree", "bbox": [10, 10, 50, 50]}]
-    }
-    print(generate_prompt(sample_data))
