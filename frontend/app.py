@@ -22,10 +22,22 @@ Transform your JSON layouts into beautiful images using Stable Diffusion.
 # Sidebar for configuration
 st.sidebar.header("Configuration")
 mode = st.sidebar.radio("Execution Mode", ["Hugging Face API", "Local (Requires GPU/Colab)"])
+method = st.sidebar.radio("Generation Method", ["Baseline (Text-to-Image)", "Layout-Guided (Img2Img)"])
+
+if method == "Layout-Guided (Img2Img)":
+    strength = st.sidebar.slider("Img2Img Strength", min_value=0.1, max_value=1.0, value=0.7, step=0.05, help="Lower values preserve the layout more strictly, higher values allow more AI creativity.")
+else:
+    strength = 0.7 # default
+
 
 if mode == "Hugging Face API":
     api_key = st.sidebar.text_input("Hugging Face API Token", type="password", help="Get your token at huggingface.co/settings/tokens")
-    model_id = st.sidebar.selectbox("Model", ["runwayml/stable-diffusion-v1-5", "stabilityai/stable-diffusion-2-1"])
+    model_id = st.sidebar.selectbox("Model", [
+        "black-forest-labs/FLUX.1-schnell",
+        "runwayml/stable-diffusion-v1-5", 
+        "stabilityai/stable-diffusion-2-1",
+        "stabilityai/stable-diffusion-xl-base-1.0"
+    ])
 else:
     model_id = st.sidebar.text_input("Model ID", "runwayml/stable-diffusion-v1-5")
     device = st.sidebar.selectbox("Device", ["cpu", "cuda"])
@@ -46,7 +58,7 @@ with col1:
             # Layout Visualization
             st.subheader("Layout Visualization")
             vis_img = visualize_layout(layout_data)
-            st.image(vis_img, caption="Bounding Box Visualization", use_container_width=True)
+            st.image(vis_img, caption="Bounding Box Visualization", width='stretch')
             
             # Generate Prompt
             prompt = generate_prompt(layout_data)
@@ -58,15 +70,21 @@ with col1:
                 else:
                     with st.spinner("Generating image..."):
                         try:
+                            # Use the visualized layout as the base image if using layout-guided generation
+                            base_image = vis_img if method == "Layout-Guided (Img2Img)" else None
+                            
                             if mode == "Hugging Face API":
-                                img = generate_image_api(prompt, api_key, model_id=model_id)
+                                img = generate_image_api(prompt, api_key, model_id=model_id, image=base_image, strength=strength)
                             else:
-                                img = generate_image(prompt, model_id=model_id, device=device)
+                                img = generate_image(prompt, model_id=model_id, device=device, image=base_image, strength=strength)
                             
                             st.session_state['generated_image'] = img
+                            st.session_state['layout_sketch'] = vis_img
                             st.success("Image generated successfully!")
                         except Exception as e:
+                            import traceback
                             st.error(f"Error generating image: {e}")
+                            st.expander("Show Detailed Error").code(traceback.format_exc())
                         
         except Exception as e:
             st.error(f"Error parsing JSON: {e}")
@@ -74,7 +92,14 @@ with col1:
 with col2:
     st.header("2. Generated Output")
     if 'generated_image' in st.session_state:
-        st.image(st.session_state['generated_image'], caption="Final Stable Diffusion Result", use_container_width=True)
+        if method == "Layout-Guided (Img2Img)" and 'layout_sketch' in st.session_state:
+            res_col1, res_col2 = st.columns(2)
+            with res_col1:
+                st.image(st.session_state['layout_sketch'], caption="Reference Layout Sketch", use_container_width=True)
+            with res_col2:
+                st.image(st.session_state['generated_image'], caption="Final Layout-Guided Result", use_container_width=True)
+        else:
+            st.image(st.session_state['generated_image'], caption="Final Baseline Result", use_container_width=True)
         
         # Download button
         buf = io.BytesIO()
