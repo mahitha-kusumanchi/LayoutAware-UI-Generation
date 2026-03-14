@@ -31,16 +31,19 @@ layoutgen/
 ### Lightweight API Mode (No Heavy Install)
 
 This project now supports **Hugging Face Inference API**, which avoids downloading massive AI models (GBs) to your computer.
-1. **Get a Token**: Create a free account at [huggingface.co](https://huggingface.co) and get a token from [Settings > Tokens](https://huggingface.co/settings/tokens).
+1. **Get a Token**: 
+   - Create a free account at [huggingface.co](https://huggingface.co).
+   - Go to [Settings > Access Tokens](https://huggingface.co/settings/tokens) and create a new token.
+   - **Crucial**: Select **"Read"** as the token type (or "Fine-grained" with `Inference: Read` permissions). You do not need write access.
 2. **Install Minimal Dependencies**:
    ```bash
-   pip install streamlit requests pillow
+   pip install streamlit requests pillow huggingface_hub
    ```
 3. **Run the App**:
    ```bash
    streamlit run frontend/app.py
    ```
-4. **Choose API Mode**: Select "Hugging Face API" in the sidebar and enter your token.
+4. **Choose API Mode**: Select "Hugging Face API" in the sidebar, pick a model (e.g. `runwayml/stable-diffusion-v1-5`), and enter your token.
 
 ### Local Setup (CPU/Local GPU/Colab)
 
