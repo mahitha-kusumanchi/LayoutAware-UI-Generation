@@ -2,3 +2,7 @@ streamlit
 requests
 pillow
 huggingface_hub
+diffusers
+transformers
+torch
+accelerate
