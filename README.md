@@ -1,3 +1,14 @@
+---
+title: LayoutGen
+emoji: 🎨
+colorFrom: blue
+colorTo: purple
+sdk: streamlit
+sdk_version: 1.43.2
+app_file: app.py
+pinned: false
+---
+
 # 🎨 LayoutGen: Layout-Aware AI Image Generation
 
 LayoutGen is a full-stack AI application that transforms JSON layout descriptions into beautiful images using Stable Diffusion. It bridges the gap between structured spatial data and creative image synthesis.
