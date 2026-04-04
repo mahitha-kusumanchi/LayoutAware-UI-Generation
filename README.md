@@ -126,7 +126,7 @@ Then select **"Local (Requires GPU/Colab)"** in the sidebar.
 
 ---
 
-## 🖼️ Example Output
+## 🖼️ Example Outputs
 
 **Input JSON:**
 ```json
@@ -140,9 +140,17 @@ Then select **"Local (Requires GPU/Colab)"** in the sidebar.
 }
 ```
 
+### 1. Baseline Text-to-Image Mode
+Generates an image purely based on the generated prompt, without strictly restricting the generated layout to bounding boxes.
+
+<img src="outputs/example_text2img.jpg" width="600"/>
+
+### 2. Layout-Guided Img2Img Mode
+Uses the exact underlying layout sketch as a structural constraint to strictly enforce object positioning.
+
 | Layout Sketch (Visualization) | Final Generative Result |
 |---|---|
-| <img src="outputs/layout_sketch.png" width="400"/> | <img src="outputs/generated_image.png" width="400"/> |
+| <img src="outputs/example_sketch.png" width="400"/> | <img src="outputs/example_img2img.png" width="400"/> |
 
 ---
 
