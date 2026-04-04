@@ -143,6 +143,9 @@ Then select **"Local (Requires GPU/Colab)"** in the sidebar.
 ### 1. Baseline Text-to-Image Mode
 Generates an image purely based on the generated prompt, without strictly restricting the generated layout to bounding boxes.
 
+**Generated Prompt:**
+> "a modern kitchen featuring: a table bottom right, a chair bottom left, a refrigerator middle right."
+
 | Layout Sketch (Visualization) | Final Generative Result |
 |---|---|
 | <img src="outputs/example_text2img_sketch.png" width="400"/> | <img src="outputs/example_text2img.jpg" width="400"/> |
