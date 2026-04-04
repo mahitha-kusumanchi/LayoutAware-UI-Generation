@@ -126,6 +126,26 @@ Then select **"Local (Requires GPU/Colab)"** in the sidebar.
 
 ---
 
+## 🖼️ Example Output
+
+**Input JSON:**
+```json
+{
+  "scene": "a modern kitchen",
+  "objects": [
+    { "label": "table",        "x": 0.5, "y": 0.70, "width": 0.40, "height": 0.20 },
+    { "label": "chair",        "x": 0.3, "y": 0.75, "width": 0.15, "height": 0.20 },
+    { "label": "refrigerator", "x": 0.8, "y": 0.40, "width": 0.20, "height": 0.40 }
+  ]
+}
+```
+
+| Layout Sketch (Visualization) | Final Generative Result |
+|---|---|
+| <img src="outputs/layout_sketch.png" width="400"/> | <img src="outputs/generated_image.png" width="400"/> |
+
+---
+
 ## 📄 JSON Input Format
 
 LayoutGen accepts two coordinate styles:

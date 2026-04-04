@@ -27,9 +27,11 @@ def visualize_layout(layout_json, size=(512, 512)):
         if "bbox" in obj_data:
             objects.append(obj_data)
         elif "x" in obj_data and "y" in obj_data and "width" in obj_data and "height" in obj_data:
+            cx, cy = obj_data["x"], obj_data["y"]
+            w, h = obj_data["width"], obj_data["height"]
             objects.append({
                 "label": obj_data.get("label"), 
-                "bbox": [obj_data["x"], obj_data["y"], obj_data["width"], obj_data["height"]],
+                "bbox": [cx - w/2.0, cy - h/2.0, w, h],
                 "normalized": isinstance(obj_data["x"], float) and obj_data["x"] <= 1.0
             })
             
@@ -66,6 +68,17 @@ def visualize_layout(layout_json, size=(512, 512)):
         
     sorted_objects = sorted(objects, key=get_area, reverse=True)
     
+    # Determine base mapping resolution based on layout extremes
+    max_x = max([(obj.get("bbox", [0,0,0,0])[0] + obj.get("bbox", [0,0,0,0])[2]) for obj in objects], default=0)
+    max_y = max([(obj.get("bbox", [0,0,0,0])[1] + obj.get("bbox", [0,0,0,0])[3]) for obj in objects], default=0)
+    
+    if max_x <= 512 and max_y <= 512:
+        base_w, base_h = 512.0, 512.0
+    elif max_x <= 1024 and max_y <= 1024:
+        base_w, base_h = 1024.0, 1024.0
+    else:
+        base_w, base_h = 1440.0, 2560.0
+
     for obj in sorted_objects:
         label = obj.get("label", "unknown").lower()
         bbox = obj.get("bbox", [0, 0, 0, 0])
@@ -81,10 +94,9 @@ def visualize_layout(layout_json, size=(512, 512)):
             nx, ny = x * size[0], y * size[1]
             nw, nh = w * size[0], h * size[1]
         else:
-            # Scale coordinates if they are for a 1440x2560 screen
-            # Simple normalization to image size 
-            scale_x = size[0] / 1440.0
-            scale_y = size[1] / 2560.0
+            # Scale coordinates dynamically based on inferred base dimensions
+            scale_x = size[0] / base_w
+            scale_y = size[1] / base_h
             
             nx, ny = x * scale_x, y * scale_y
             nw, nh = w * scale_x, h * scale_y
@@ -104,10 +116,12 @@ def visualize_layout(layout_json, size=(512, 512)):
             )
             used_colors[label] = fill_color
             
-        # Draw solid rectangle
-        draw.rectangle([nx, ny, nx + nw, ny + nh], fill=fill_color, outline="black", width=2)
-        # Draw label
-        draw.text((nx + 5, ny + 5), label, fill="black")
+        # Draw solid rectangle without black borders
+        draw.rectangle([nx, ny, nx + nw, ny + nh], fill=fill_color)
+        
+        # We NO LONGER draw text labels onto the image itself.
+        # Img2Img models get incredibly confused by visible English text and black outlines,
+        # which causes them to draw 2D cartoons instead of realistic photographs!
         
     return img
 
@@ -133,9 +147,17 @@ def generate_image_api(prompt, api_key, image=None, strength=0.7, model_id="runw
             image_bytes = io.BytesIO()
             image.save(image_bytes, format="PNG")
             image_bytes = image_bytes.getvalue()
-            
-            res_image = client.image_to_image(image=image_bytes, prompt=prompt)
-            final_image = res_image
+            try:
+                res_image = client.image_to_image(image=image_bytes, prompt=prompt)
+                final_image = res_image
+            except Exception as routing_err:
+                if isinstance(routing_err, StopIteration) or "not supported" in str(routing_err):
+                    raise Exception(
+                        "The free Hugging Face Inference API does not currently have any active servers supporting 'image-to-image' tasks for this model. "
+                        "To use Layout-Guided mode, please switch your 'Execution Mode' in the sidebar to 'Local (Requires GPU/Colab)'. "
+                        "Note: Local mode requires PyTorch and diffusers to be installed locally."
+                    ) from routing_err
+                raise routing_err
         else:
             # Baseline Text-to-Image generation
             print(f"Calling Hugging Face API text-to-image for model {model_id}...")

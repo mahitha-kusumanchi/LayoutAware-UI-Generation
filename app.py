@@ -58,7 +58,7 @@ with col1:
             # Layout Visualization
             st.subheader("Layout Visualization")
             vis_img = visualize_layout(layout_data)
-            st.image(vis_img, caption="Bounding Box Visualization", use_container_width=True)
+            st.image(vis_img, caption="Bounding Box Visualization")
             
             # Generate Prompt
             prompt = generate_prompt(layout_data)
@@ -95,11 +95,11 @@ with col2:
         if method == "Layout-Guided (Img2Img)" and 'layout_sketch' in st.session_state:
             res_col1, res_col2 = st.columns(2)
             with res_col1:
-                st.image(st.session_state['layout_sketch'], caption="Reference Layout Sketch", use_container_width=True)
+                st.image(st.session_state['layout_sketch'], caption="Reference Layout Sketch")
             with res_col2:
-                st.image(st.session_state['generated_image'], caption="Final Layout-Guided Result", use_container_width=True)
+                st.image(st.session_state['generated_image'], caption="Final Layout-Guided Result")
         else:
-            st.image(st.session_state['generated_image'], caption="Final Baseline Result", use_container_width=True)
+            st.image(st.session_state['generated_image'], caption="Final Baseline Result")
         
         # Download button
         buf = io.BytesIO()
