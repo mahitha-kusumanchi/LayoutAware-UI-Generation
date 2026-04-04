@@ -27,11 +27,9 @@ def visualize_layout(layout_json, size=(512, 512)):
         if "bbox" in obj_data:
             objects.append(obj_data)
         elif "x" in obj_data and "y" in obj_data and "width" in obj_data and "height" in obj_data:
-            cx, cy = obj_data["x"], obj_data["y"]
-            w, h = obj_data["width"], obj_data["height"]
             objects.append({
                 "label": obj_data.get("label"), 
-                "bbox": [cx - w/2.0, cy - h/2.0, w, h],
+                "bbox": [obj_data["x"], obj_data["y"], obj_data["width"], obj_data["height"]],
                 "normalized": isinstance(obj_data["x"], float) and obj_data["x"] <= 1.0
             })
             

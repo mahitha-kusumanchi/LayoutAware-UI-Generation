@@ -20,11 +20,9 @@ def extract_objects(data):
                 extracted.append({"label": label, "bbox": [x, y, w, h]})
         elif "x" in data and "y" in data and "width" in data and "height" in data:
             # Handle normalized fractional coordinates or explicit x,y,w,h keys
-            cx, cy = data["x"], data["y"]
-            w, h = data["width"], data["height"]
             extracted.append({
                 "label": label, 
-                "bbox": [cx - w/2.0, cy - h/2.0, w, h],
+                "bbox": [data["x"], data["y"], data["width"], data["height"]],
                 "normalized": isinstance(data["x"], float) and data["x"] <= 1.0
             })
             
@@ -52,11 +50,9 @@ def generate_prompt(layout_json):
         if "bbox" in obj_data:
             objects.append(obj_data)
         elif "x" in obj_data and "y" in obj_data and "width" in obj_data and "height" in obj_data:
-            cx, cy = obj_data["x"], obj_data["y"]
-            w, h = obj_data["width"], obj_data["height"]
             objects.append({
                 "label": obj_data.get("label"), 
-                "bbox": [cx - w/2.0, cy - h/2.0, w, h],
+                "bbox": [obj_data["x"], obj_data["y"], obj_data["width"], obj_data["height"]],
                 "normalized": isinstance(obj_data["x"], float) and obj_data["x"] <= 1.0
             })
             
