@@ -1,6 +1,4 @@
----
-title: LayoutGen
----
+
 
 # 🎨 LayoutGen — Layout-Aware AI Image Generation
 
